@@ -419,7 +419,7 @@ or in the core section of the cpp samples.
 You can also find a quick video demonstration of this on
 [YouTube](https://www.youtube.com/watch?v=1tibU7vGWpk).
 
-@youtube{https://www.youtube.com/watch?v=1tibU7vGWpk}
+@youtube{1tibU7vGWpk}
 
 @end_toggle
 
