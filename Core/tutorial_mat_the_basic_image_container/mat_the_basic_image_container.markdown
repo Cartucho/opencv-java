@@ -223,7 +223,7 @@ object in multiple ways:
 
 -   @ref cv::Mat::Mat Constructor
 
-    @snippet mat_the_basic_image_container.cpp constructor
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp constructor
 
     ![](images/MatBasicContainerOut1.png)
 
@@ -270,7 +270,7 @@ object in multiple ways:
 
 -   Use C/C++ arrays and initialize via constructor
 
-    @snippet mat_the_basic_image_container.cpp init
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp init
 
     The upper example shows how to create a matrix with more than two dimensions. Specify its
     dimension, then pass a pointer containing the size for each dimension and the rest remains the
@@ -291,7 +291,7 @@ object in multiple ways:
 
 -   @ref cv::Mat::create function:
 
-    @snippet mat_the_basic_image_container.cpp create
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp create
 
     ![](images/MatBasicContainerOut2.png)
 
@@ -330,13 +330,13 @@ object in multiple ways:
 -   MATLAB style initializer: @ref cv::Mat::zeros , @ref cv::Mat::ones , @ref cv::Mat::eye . Specify size and
     data type to use:
 
-    @snippet mat_the_basic_image_container.cpp matlab
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp matlab
 
     ![](images/MatBasicContainerOut3.png)
 
 -   For small matrices you may use comma separated initializers:
 
-    @snippet mat_the_basic_image_container.cpp comma
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp comma
 
     ![](images/MatBasicContainerOut6.png)
 
@@ -355,14 +355,14 @@ object in multiple ways:
 
 -   Create a new header for an existing *Mat* object and @ref cv::Mat::clone or @ref cv::Mat::copyTo it.
 
-    @snippet mat_the_basic_image_container.cpp clone
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp clone
 
     ![](images/MatBasicContainerOut7.png)
 
     @note
     You can fill out a matrix with random values using the @ref cv::randu() function. You need to
     give the lower and upper value for the random values:
-    @snippet mat_the_basic_image_container.cpp random
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp random
 
 
 Output formatting
@@ -372,23 +372,23 @@ In the above examples you could see the default formatting option. OpenCV, howev
 format your matrix output:
 
 -   Default
-    @snippet mat_the_basic_image_container.cpp out-default
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-default
     ![](images/MatBasicContainerOut8.png)
 
 -   Python
-    @snippet mat_the_basic_image_container.cpp out-python
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-python
     ![](images/MatBasicContainerOut16.png)
 
 -   Comma separated values (CSV)
-    @snippet mat_the_basic_image_container.cpp out-csv
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-csv
     ![](images/MatBasicContainerOut10.png)
 
 -   Numpy
-    @snippet mat_the_basic_image_container.cpp out-numpy
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-numpy
     ![](images/MatBasicContainerOut9.png)
 
 -   C
-    @snippet mat_the_basic_image_container.cpp out-c
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-c
     ![](images/MatBasicContainerOut11.png)
 
 Output of other common items
@@ -397,19 +397,19 @@ Output of other common items
 OpenCV offers support for output of other common OpenCV data structures too via the \<\< operator:
 
 -   2D Point
-    @snippet mat_the_basic_image_container.cpp out-point2
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-point2
     ![](images/MatBasicContainerOut12.png)
 
 -   3D Point
-    @snippet mat_the_basic_image_container.cpp out-point3
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-point3
     ![](images/MatBasicContainerOut13.png)
 
 -   std::vector via cv::Mat
-    @snippet mat_the_basic_image_container.cpp out-vector
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-vector
     ![](images/MatBasicContainerOut14.png)
 
 -   std::vector of points
-    @snippet mat_the_basic_image_container.cpp out-vector-points
+    @snippet samples/cpp/tutorial_code/core/mat_the_basic_image_container/mat_the_basic_image_container.cpp out-vector-points
     ![](images/MatBasicContainerOut15.png)
 
 Most of the samples here have been included in a small console application. You can download it from
