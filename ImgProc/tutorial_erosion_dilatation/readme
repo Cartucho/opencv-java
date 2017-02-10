@@ -1,4 +1,5 @@
 samples/cpp/tutorial_code/ImgProc/Morphology_1.cpp
 samples/java/tutorial_code/ImgProc/ErodingAndDilating/Controller.java
 samples/java/tutorial_code/ImgProc/ErodingAndDilating/Main.java
+samples/java/tutorial_code/ImgProc/ErodingAndDilating/sample.fxml
 samples/python/tutorial_code/ImgProc/Morphology_1.py
