@@ -34,7 +34,9 @@ This tutorial code's is shown lines below. You can also download it from
 @end_toggle
 
 @add_toggle{Java}
-The tutorial code's is shown lines below.
+The tutorial code's is shown lines below.You can also download it from
+[here](https://github.com/opencv/opencv/tree/master/samples/java/tutorial_code/ImgProc/tutorial_hull/HullDemo.java)
+
 @include samples/java/tutorial_code/ImgProc/tutorial_hull/HullDemo.java
 @end_toggle
 
