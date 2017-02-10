@@ -91,7 +91,8 @@ Code
     @include samples/cpp/tutorial_code/ImgTrans/filter2D_demo.cpp
 @end_toggle
 @add_toggle{Java}
--#  The tutorial code's is shown lines below.
+-#  The tutorial code's is shown lines below. You can also download it from
+    [here](https://github.com/Itseez/opencv/tree/master/samples/java/tutorial_code/ImgProc/tutorial_filter_2d/Filter2D_Demo.java)
     @include samples/java/tutorial_code/ImgProc/tutorial_filter_2d/Filter2D_Demo.java
 @end_toggle
 

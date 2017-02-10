@@ -36,7 +36,8 @@ This tutorial code's is shown lines below. You can also download it from
 
 @add_toggle{Java}
 
-The tutorial code's is shown lines below.
+The tutorial code's is shown lines below.You can also download it from
+[here](https://github.com/opencv/opencv/tree/master/samples/java/tutorial_code/ImgProc/tutorial_find_contours/FindContoursDemo.java)
 @include samples/java/tutorial_code/ImgProc/tutorial_find_contours/FindContoursDemo.java
 
 @end_toggle
