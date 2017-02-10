@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 
 """
+  TODO : add this function to cv2.morphologyEx()
   Hit-or-miss transform function
 
   Parameters:
