@@ -9,7 +9,7 @@ Goal
 
 In this tutorial you will learn:
 
-@add_toggle{C++}
+@add_toggle_cpp
 
 -   What is Back Projection and why it is useful
 -   How to use the OpenCV function @ref cv::calcBackProject to calculate Back Projection
@@ -17,11 +17,11 @@ In this tutorial you will learn:
 
 @end_toggle
 
-@add_toggle{Java}
+@add_toggle_java
 
 -   What is Back Projection and why it is useful
--   How to use the OpenCV function [Imgproc.calcBackProject()] to calculate Back Projection
--   How to mix different channels of an image by using the OpenCV function [Imgproc.mixChannels()]
+-   How to use the OpenCV function **Imgproc.calcBackProject()** to calculate Back Projection
+-   How to mix different channels of an image by using the OpenCV function **Imgproc.mixChannels()**
 
 @end_toggle
 
@@ -74,7 +74,7 @@ Theory
 Code
 ----
 
-@add_toggle{C++}
+@add_toggle_cpp
 
 -   **What does this program do?**
     -   Loads an image
