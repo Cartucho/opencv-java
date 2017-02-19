@@ -15,7 +15,7 @@ def main(argv):
     src = cv2.imread(sys.argv[1], cv2.IMREAD_COLOR)
 
     if src is None:
-        print 'Usage:\nback_projection.py <path_to_image>'
+        print 'Usage:\ncalc_back_project.py <path_to_image>'
         return -1
 
     global hsv
