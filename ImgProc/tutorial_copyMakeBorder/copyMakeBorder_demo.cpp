@@ -54,8 +54,8 @@ int main( int, char** argv )
 
   //! [initialize_arguments]
   /// Initialize arguments for the filter
-  top = (int) (0.05*src.rows); bottom = (int) (0.05*src.rows);
-  left = (int) (0.05*src.cols); right = (int) (0.05*src.cols);
+  top = (int) (0.05*src.rows); bottom = top;
+  left = (int) (0.05*src.cols); right = left;
   //! [initialize_arguments]
   dst = src;
 
