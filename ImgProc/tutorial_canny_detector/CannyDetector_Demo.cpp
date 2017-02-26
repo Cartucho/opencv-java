@@ -17,7 +17,6 @@ using namespace cv;
 Mat src, src_gray;
 Mat dst, detected_edges;
 
-int edgeThresh = 1;
 int lowThreshold;
 int const max_lowThreshold = 100;
 int ratio = 3;
