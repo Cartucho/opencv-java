@@ -3,3 +3,6 @@ samples/java/tutorial_code/ImgProc/ErodingAndDilating/Controller.java
 samples/java/tutorial_code/ImgProc/ErodingAndDilating/Main.java
 samples/java/tutorial_code/ImgProc/ErodingAndDilating/sample.fxml
 samples/python/tutorial_code/ImgProc/Morphology_1.py
+
+
+change from Morphology_1.py to erosion_dilation.py
