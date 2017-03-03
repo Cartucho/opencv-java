@@ -1,51 +1,106 @@
+import sys
 import cv2
 import numpy as np
 
 DELAY_CAPTION = 1500
-DELAY_BLUR = 500
+DELAY_BLUR = 100
+MAX_KERNEL_LENGTH = 31
 
-img = cv2.imread('lena.jpg')
+src = None
+dst = None
+window_name = 'Smoothing Demo'
 
-## [blur]
-for i in xrange(1,31,2):
-    blur = cv2.blur(img,(i,i))
-    string = 'blur : kernel size - '+str(i)
-    cv2.putText(blur,string,(20,20),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255,255,255))
-    cv2.imshow('Blur',blur)
-    cv2.waitKey(DELAY_BLUR)
-## [blur]
 
-## [gaussian_blur]
-for i in xrange(1,31,2):
-    gaussian_blur = cv2.GaussianBlur(img,(i,i),0)
-    string = 'guassian_blur : kernel size - '+str(i)
-    cv2.putText(gaussian_blur,string,(20,20),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255,255,255))
-    cv2.imshow('Blur',gaussian_blur)
-    cv2.waitKey(DELAY_BLUR)
-## [gaussian_blur]
+def main(argv):
+    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
 
-cv2.waitKey(DELAY_CAPTION)
+    # Load the source image
+    global src
+    src = cv2.imread(sys.argv[1], 1)
+    if src is None:
+        print 'Usage:\ngaussian_median_blur_bilateral_filter.py <path_to_image>'
+        return -1
 
-## [median_blur]
-for i in xrange(1,31,2):
-    median_blur = cv2.medianBlur(img,i)
-    string = 'median_blur : kernel size - '+str(i)
-    cv2.putText(median_blur,string,(20,20),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255,255,255))
-    cv2.imshow('Blur',median_blur)
-    cv2.waitKey(DELAY_BLUR)
-## [median_blur]
+    if display_caption('Original Image') != 0:
+        return 0
 
-cv2.waitKey(DELAY_CAPTION)
+    global dst
+    dst = np.copy(src)
+    if display_dst(DELAY_CAPTION) != 0:
+        return 0
 
-## [bilateral_blur]
-# Remember, bilateral is a bit slow, so as value go higher, it takes long time
-for i in xrange(1,31,2):
-    bilateral_blur = cv2.bilateralFilter(img,i, i*2,i/2)
-    string = 'bilateral_blur : kernel size - '+str(i)
-    cv2.putText(bilateral_blur,string,(20,20),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(255,255,255))
-    cv2.imshow('Blur',bilateral_blur)
-    cv2.waitKey(DELAY_BLUR)
-## [bilateral_blur]
+    # Applying Homogeneous blur
+    if display_caption('Homogeneous Blur') != 0:
+        return 0
 
-cv2.waitKey(DELAY_CAPTION)
-cv2.destroyAllWindows()
+    ## [blur]
+    for i in xrange(1, MAX_KERNEL_LENGTH, 2):
+        dst = cv2.blur(src, (i, i))
+        if display_dst(DELAY_BLUR) != 0:
+            return 0
+    ## [blur]
+
+    # Applying Gaussian blur
+    if display_caption('Gaussian Blur') != 0:
+        return 0
+
+    ## [gaussian_blur]
+    for i in xrange(1, MAX_KERNEL_LENGTH, 2):
+        dst = cv2.GaussianBlur(src, (i, i), 0)
+        if display_dst(DELAY_BLUR) != 0:
+            return 0
+    ## [gaussian_blur]
+
+    # Applying Median blur
+    if display_caption('Median Blur') != 0:
+        return 0
+
+    ## [median_blur]
+    for i in xrange(1, MAX_KERNEL_LENGTH, 2):
+        dst = cv2.medianBlur(src, i)
+        if display_dst(DELAY_BLUR) != 0:
+            return 0
+    ## [median_blur]
+
+    # Applying Bilateral Filter
+    if display_caption('Bilateral Blur') != 0:
+        return 0
+
+    ## [bilateral_blur]
+    # Remember, bilateral is a bit slow, so as value go higher, it takes long time
+    for i in xrange(1, MAX_KERNEL_LENGTH, 2):
+        dst = cv2.bilateralFilter(src, i, i * 2, i / 2)
+        if display_dst(DELAY_BLUR) != 0:
+            return 0
+    ## [bilateral_blur]
+
+    #  Wait until user press a key
+    display_caption('End: Press a key!')
+    cv2.waitKey(0)
+
+    return 0
+
+
+def display_caption(caption):
+    global dst
+    dst = np.zeros(src.shape, src.dtype)
+    rows, cols, ch = src.shape
+    cv2.putText(dst, caption,
+                (cols / 4, rows / 2),
+                cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255))
+    
+    return display_dst(DELAY_CAPTION)
+
+
+def display_dst(delay):
+    cv2.imshow(window_name, dst)
+
+    c = cv2.waitKey(delay)
+    if c >= 0:
+        return -1
+
+    return 0
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

@@ -30,12 +30,12 @@ int display_dst(int delay);
 /**
  * function main
  */
-int main(void)
+int main( int, char** argv)
 {
     namedWindow(window_name, WINDOW_AUTOSIZE);
 
     /// Load the source image
-    src = imread("../data/lena.jpg", 1);
+    src = imread(argv[1], 1);
 
     if (display_caption("Original Image") != 0) {
         return 0;
@@ -117,15 +117,10 @@ int display_caption(const char* caption)
 {
     dst = Mat::zeros(src.size(), src.type());
     putText(dst, caption,
-        Point(src.cols / 4, src.rows / 2),
-        FONT_HERSHEY_COMPLEX, 1, Scalar(255, 255, 255));
-
-    imshow(window_name, dst);
-    int c = waitKey(DELAY_CAPTION);
-    if (c >= 0) {
-        return -1;
-    }
-    return 0;
+            Point(src.cols / 4, src.rows / 2),
+            FONT_HERSHEY_COMPLEX, 1, Scalar(255, 255, 255));
+    
+    return display_dst(DELAY_CAPTION);
 }
 
 /**
