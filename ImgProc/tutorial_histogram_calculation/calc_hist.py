@@ -5,7 +5,6 @@ import numpy as np
 
 def main(argv):
     # Load the source image
-    global src
     src = cv2.imread(sys.argv[1], 1)
 
     if src is None:
