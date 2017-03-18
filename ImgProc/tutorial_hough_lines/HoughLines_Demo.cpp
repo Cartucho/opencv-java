@@ -18,7 +18,6 @@ using namespace std;
 /** General variables */
 Mat src, edges;
 Mat src_gray;
-Mat standard_hough, probabilistic_hough;
 int min_threshold = 50;
 int max_trackbar = 150;
 
@@ -90,13 +89,13 @@ void help()
 void Standard_Hough( int, void* )
 {
   vector<Vec2f> s_lines;
-  cvtColor( edges, standard_hough, COLOR_GRAY2BGR );
 
   /// 1. Use Standard Hough Transform
   //! [hough_lines]
   HoughLines( edges, s_lines, 1, CV_PI/180, min_threshold + s_trackbar, 0, 0 );
   //! [hough_lines]
 
+  Mat display = src.clone();
   //! [loop]
   /// Show the result
   for( size_t i = 0; i < s_lines.size(); i++ )
@@ -108,12 +107,12 @@ void Standard_Hough( int, void* )
 
        Point pt1( cvRound(x0 + alpha*(-sin_t)), cvRound(y0 + alpha*cos_t) );
        Point pt2( cvRound(x0 - alpha*(-sin_t)), cvRound(y0 - alpha*cos_t) );
-       line( standard_hough, pt1, pt2, Scalar(255,0,0), 3, LINE_AA);
+       line( display, pt1, pt2, Scalar(255,0,0), 3, LINE_AA);
      }
   //! [loop]
 
 
-   imshow( standard_name, standard_hough );
+   imshow( standard_name, display );
 }
 
 /**
@@ -122,21 +121,21 @@ void Standard_Hough( int, void* )
 void Probabilistic_Hough( int, void* )
 {
   vector<Vec4i> p_lines;
-  cvtColor( edges, probabilistic_hough, COLOR_GRAY2BGR );
 
   //! [hough_lines_p]
   /// 2. Use Probabilistic Hough Transform
   HoughLinesP( edges, p_lines, 1, CV_PI/180, min_threshold + p_trackbar, 30, 10 );
   //! [hough_lines_p]
 
+  Mat display = src.clone();
   //! [loop_p]
   /// Show the result
   for( size_t i = 0; i < p_lines.size(); i++ )
      {
        Vec4i l = p_lines[i];
-       line( probabilistic_hough, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255,0,0), 3, LINE_AA);
+       line( display, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255,0,0), 3, LINE_AA);
      }
   //! [loop_p]
 
-   imshow( probabilistic_name, probabilistic_hough );
+   imshow( probabilistic_name, display );
 }
