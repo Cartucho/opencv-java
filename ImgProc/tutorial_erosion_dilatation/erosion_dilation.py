@@ -14,11 +14,17 @@ max_kernel_size = 21
 
 
 def main(argv):
+
+    if len(argv) < 1:
+        print 'Not enough parameters'
+        print 'Usage:\nerosion_dilation.py < path_to_image >'
+        return -1
+
     global src
-    src = cv2.imread(sys.argv[1], cv2.IMREAD_COLOR)
+    src = cv2.imread(argv[1], cv2.IMREAD_COLOR)
 
     if src is None:
-        print 'Usage:\nerosion_dilation.py <path_to_image>'
+        print 'Can\'t read the image'
         return -1
 
     cv2.namedWindow('Erosion Demo', cv2.WINDOW_AUTOSIZE)
@@ -39,7 +45,7 @@ def main(argv):
                        dilation_elem, max_elem, dilate_elem)
 
     cv2.createTrackbar('Kernel size:\n 2n +1', 'Dilation Demo', dilation_size,
-                       max_kernel_size, dilate_size);
+                       max_kernel_size, dilate_size)
 
     # Default start
     erode_elem(erosion_elem)
@@ -104,4 +110,4 @@ def dilate():
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main(sys.argv)

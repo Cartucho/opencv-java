@@ -1,4 +1,1 @@
 # OpencvPRs
-
-next:
-	- ImgProc/hitOrMiss
