@@ -39,7 +39,7 @@ int main( int, char** argv )
   namedWindow( source_window, WINDOW_AUTOSIZE );
   imshow( source_window, src );
 
-  createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
+  createTrackbar( " Threshold:", source_window, &thresh, max_thresh, thresh_callback );
   thresh_callback( 0, 0 );
 
   waitKey(0);

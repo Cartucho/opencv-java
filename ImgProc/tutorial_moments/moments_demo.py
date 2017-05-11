@@ -17,16 +17,35 @@ def thresh_callback(param):
     # Find contours
     im2, contours, hierarchy = cv2.findContours(canny_output, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+    # Get the moments
+    mu = np.empty_like(contours)
+    for i in range(0, len(contours)):
+        mu[i] = cv2.moments(contours[i])
+
+    # Get the mass centers:
+    mc = np.empty_like(contours)
+    for i in range(0, len(contours)):
+        if mu[i]['m00'] != 0:
+            mc[i] = (int(mu[i]['m10'] / mu[i]['m00']), int(mu[i]['m01'] / mu[i]['m00']))
+
     # Draw contours
     w, h = canny_output.shape
     drawing = np.zeros((w, h, 3), dtype=np.uint8)
     for i in range(0, len(contours)):
         color = (np.random.uniform(0, 255), np.random.uniform(0, 255), np.random.uniform(0, 255))
-        cv2.drawContours(drawing, contours, i, color, 1)
+        cv2.drawContours(drawing, contours, i, color, 2)
+        if mc[i] is not None:
+            cv2.circle(drawing, mc[i], 4, color, -1)
 
     # Show in a window
     cv2.namedWindow('Contours', cv2.WINDOW_AUTOSIZE)
     cv2.imshow('Contours', drawing)
+
+    # Calculate the area with the moments 00 and compare with the result of the OpenCV function
+    print "\t Info: Area and Contour Length"
+    for i in range(0, len(contours)):
+        print " * Contour[%d] - Area (M_00) = %.2f - Area OpenCV: %.2f - Length: %.2f" % (
+            i, mu[i]['m00'], cv2.contourArea(contours[i]), cv2.arcLength(contours[i], True))
 
     pass
 
@@ -64,3 +83,4 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv[1:])
+
