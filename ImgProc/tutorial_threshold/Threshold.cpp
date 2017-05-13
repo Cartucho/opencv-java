@@ -62,13 +62,7 @@ int main( int, char** argv )
   Threshold_Demo( 0, 0 );
 
   /// Wait until user finishes program
-  for(;;)
-    {
-      int c;
-      c = waitKey( 20 );
-      if( (char)c == 27 )
-    { break; }
-    }
+  waitKey(0);
 
 }
 
