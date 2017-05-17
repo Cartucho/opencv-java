@@ -12,15 +12,13 @@ public class HighGui {
     public static int count = 0;
     static ArrayList<JFrame> framesList = new ArrayList<JFrame>();
 
-    /*
-       The function namedWindow just makes sure that if you wish to do something
-       with that same window afterwards (eg move, resize, close that window),
-       you can do it by referencing it with the same name.
-     */
-    public static void namedWindow() {
-    }
-
     public static void imshow(String winname, Mat _img) {
+
+        if (_img.empty()){
+            System.err.println("OpenCV Error: Empty image in imshow");
+            System.exit(-1);
+        }
+
         Image tmpImg = toBufferedImage(_img);
             displayImage(winname, tmpImg);
         count++;
@@ -46,43 +44,61 @@ public class HighGui {
         JFrame frame=new JFrame(title);
         JLabel lbl=new JLabel(icon);
         frame.add(lbl);
-        //frame.addWindowListener(exitListener);
-
-        // num is a reference to each image shown
-        int index = count;
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                System.out.println(index +" is closing");
-
-                count--;
-                if(count == 0)
-                    System.exit(0);
-            }
-        });
-
-        framesList.add(index, frame);
+        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        framesList.add(count, frame);
     }
 
     public static void waitKey(int delay) {
 
+        final boolean[] flag = {true};
+
         for (JFrame frame : framesList) {
+
             frame.addKeyListener(new KeyListener() {
 
                 @Override
-                public void keyTyped(KeyEvent e) {}
+                public void keyTyped(KeyEvent e) {
+                }
 
                 @Override
-                public void keyReleased(KeyEvent e) {}
+                public void keyReleased(KeyEvent e) {
+                }
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    //System.out.println("Pressed " + e.getKeyChar());
-                    System.exit(0);
+                    for (JFrame frame : framesList) {
+                        frame.setVisible(false);
+                        frame.dispose();
+                        flag[0] = false;
+                    }
+                    framesList.clear();
+                    count = 0;
                 }
             });
+
+            if (delay != 0) {
+                Timer timer = new Timer(delay, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        frame.setVisible(false);
+                        frame.dispose();
+                        framesList.remove(frame);
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+
             frame.pack();
             frame.setVisible(true);
         }
+
+        while (flag[0]){
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
+
