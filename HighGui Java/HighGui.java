@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 public class HighGui {
 
@@ -45,14 +46,23 @@ public class HighGui {
         JLabel lbl=new JLabel(icon);
         frame.add(lbl);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
+        // num is a reference to each image shown
+        int index = count;
+
         framesList.add(count, frame);
     }
 
     public static void waitKey(int delay) {
 
         final boolean[] flag = {true};
+        final CountDownLatch latch = new CountDownLatch(1);
 
         for (JFrame frame : framesList) {
+
+            //frame.getInputMap()
+            //JPanel content = (JPanel) frame.getContentPane();
+            //content.getInputMap().put(KeyStroke.);
 
             frame.addKeyListener(new KeyListener() {
 
@@ -70,6 +80,7 @@ public class HighGui {
                         frame.setVisible(false);
                         frame.dispose();
                         flag[0] = false;
+                        latch.countDown();
                     }
                     framesList.clear();
                     count = 0;
@@ -92,13 +103,10 @@ public class HighGui {
             frame.setVisible(true);
         }
 
-        while (flag[0]){
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
-
