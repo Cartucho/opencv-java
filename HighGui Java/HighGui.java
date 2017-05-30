@@ -13,10 +13,18 @@ public class HighGui {
     public static int count = 0;
     static ArrayList<JFrame> framesList = new ArrayList<JFrame>();
 
+    /*
+       The function namedWindow just makes sure that if you wish to do something
+       with that same window afterwards (eg move, resize, close that window),
+       you can do it by referencing it with the same name.
+     */
+    public static void namedWindow() {
+    }
+
     public static void imshow(String winname, Mat _img) {
 
         if (_img.empty()){
-            System.err.println("OpenCV Error: Empty image in imshow");
+            System.err.println("Error: Empty image in imshow");
             System.exit(-1);
         }
 
@@ -53,10 +61,12 @@ public class HighGui {
         framesList.add(count, frame);
     }
 
-    public static void waitKey(int delay) {
+    public static int waitKey(int delay) {
 
-        final boolean[] flag = {true};
+        // before closing eveything
+
         final CountDownLatch latch = new CountDownLatch(1);
+        final int[] pressedKey = {-1};
 
         for (JFrame frame : framesList) {
 
@@ -76,23 +86,15 @@ public class HighGui {
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    for (JFrame frame : framesList) {
-                        frame.setVisible(false);
-                        frame.dispose();
-                        flag[0] = false;
-                        latch.countDown();
-                    }
-                    framesList.clear();
-                    count = 0;
+                    pressedKey[0] = e.getKeyCode();
+                    latch.countDown();
                 }
             });
 
-            if (delay != 0) {
+            if (delay > 0) {
                 Timer timer = new Timer(delay, new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        frame.setVisible(false);
-                        frame.dispose();
-                        framesList.remove(frame);
+                        latch.countDown();
                     }
                 });
                 timer.setRepeats(false);
@@ -108,5 +110,21 @@ public class HighGui {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+        //closeAllFrames();
+
+        return pressedKey[0];
+
     }
+
+    private static void closeAllFrames() {
+        for (JFrame frame : framesList) {
+            //frame.setVisible(false);
+            frame.dispose();
+        }
+        framesList.clear();
+        count = 0;
+    }
+
 }
+
