@@ -6,12 +6,21 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 public class HighGui {
 
-    public static int count = 0;
-    static ArrayList<JFrame> framesList = new ArrayList<JFrame>();
+    public static int closed_windows = 0;
+
+    public static boolean calledWaitKey = false;
+    public static boolean repeatingWindow = false;
+
+    static CountDownLatch latch = new CountDownLatch(1);
+
+    static ArrayList<JFrame> oldFramesList = new ArrayList<JFrame>();
+    static ArrayList<JFrame> newFramesList = new ArrayList<JFrame>();
+    static ArrayList<JLabel> labelList = new ArrayList<JLabel>();
 
     /*
        The function namedWindow just makes sure that if you wish to do something
@@ -28,9 +37,36 @@ public class HighGui {
             System.exit(-1);
         }
 
-        Image tmpImg = toBufferedImage(_img);
+        if(calledWaitKey) {
+            newFramesList.clear();
+            calledWaitKey = false;
+        }
+
+        if(!oldFramesList.isEmpty()){
+            int i = 0;
+            for (JFrame frame : oldFramesList) {
+                if(Objects.equals(frame.getTitle(), winname)) {
+                    repeatingWindow = true;
+
+                    JLabel lbl = labelList.get(i);
+
+                    Image tmpImg = toBufferedImage(_img);
+                    ImageIcon icon = new ImageIcon(tmpImg);
+                    lbl.setIcon(icon);
+
+                    newFramesList.add(frame);
+
+                    break;
+                }
+                i++;
+            }
+        }
+
+        if(!repeatingWindow) {
+            Image tmpImg = toBufferedImage(_img);
             displayImage(winname, tmpImg);
-        count++;
+        }
+
     }
 
     public static Image toBufferedImage(Mat m) {
@@ -54,26 +90,45 @@ public class HighGui {
         JLabel lbl=new JLabel(icon);
         frame.add(lbl);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                closed_windows++;
+                if(closed_windows == newFramesList.size())
+                    latch.countDown();
+            }
+        });
 
-        // num is a reference to each image shown
-        int index = count;
-
-        framesList.add(count, frame);
+        labelList.add(lbl);
+        newFramesList.add(frame);
     }
 
     public static int waitKey(int delay) {
 
-        // before closing eveything
+        latch = new CountDownLatch(1);
+        closed_windows = 0;
 
-        final CountDownLatch latch = new CountDownLatch(1);
+        if(!repeatingWindow)
+            if (!oldFramesList.isEmpty())
+                closeOldFrames();
+
+        calledWaitKey = true;
+
         final int[] pressedKey = {-1};
 
-        for (JFrame frame : framesList) {
+        for (JFrame frame : newFramesList) {
 
-            //frame.getInputMap()
-            //JPanel content = (JPanel) frame.getContentPane();
-            //content.getInputMap().put(KeyStroke.);
+            if (delay > 0) {
+                Timer timer = new Timer(delay, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        latch.countDown();
+                    }
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
 
+            // só faço addKeyListener se não tiver já
             frame.addKeyListener(new KeyListener() {
 
                 @Override
@@ -91,16 +146,6 @@ public class HighGui {
                 }
             });
 
-            if (delay > 0) {
-                Timer timer = new Timer(delay, new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        latch.countDown();
-                    }
-                });
-                timer.setRepeats(false);
-                timer.start();
-            }
-
             frame.pack();
             frame.setVisible(true);
         }
@@ -111,20 +156,18 @@ public class HighGui {
             e.printStackTrace();
         }
 
-        //closeAllFrames();
+        oldFramesList = (ArrayList<JFrame>) newFramesList.clone();
 
         return pressedKey[0];
 
     }
 
-    private static void closeAllFrames() {
-        for (JFrame frame : framesList) {
-            //frame.setVisible(false);
+    private static void closeOldFrames() {
+        for (JFrame frame : oldFramesList) {
+            frame.setVisible(false);
             frame.dispose();
         }
-        framesList.clear();
-        count = 0;
+        oldFramesList.clear();
     }
 
 }
-
