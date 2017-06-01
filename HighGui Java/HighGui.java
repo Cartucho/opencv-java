@@ -5,22 +5,19 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class HighGui {
 
-    public static int closed_windows = 0;
-
-    public static boolean calledWaitKey = false;
-    public static boolean repeatingWindow = false;
-
+    public static int n_closed_windows = 0;
+    public static int pressedKey = -1;
+    
     static CountDownLatch latch = new CountDownLatch(1);
 
-    static ArrayList<JFrame> oldFramesList = new ArrayList<JFrame>();
-    static ArrayList<JFrame> newFramesList = new ArrayList<JFrame>();
-    static ArrayList<JLabel> labelList = new ArrayList<JLabel>();
+    static Map<String,ImageWindow> windows = new HashMap<String,ImageWindow>();
 
     /*
        The function namedWindow just makes sure that if you wish to do something
@@ -30,43 +27,20 @@ public class HighGui {
     public static void namedWindow() {
     }
 
-    public static void imshow(String winname, Mat _img) {
+    public static void imshow(String winname, Mat img) {
 
-        if (_img.empty()){
+        if (img.empty()){
             System.err.println("Error: Empty image in imshow");
             System.exit(-1);
-        }
-
-        if(calledWaitKey) {
-            newFramesList.clear();
-            calledWaitKey = false;
-        }
-
-        if(!oldFramesList.isEmpty()){
-            int i = 0;
-            for (JFrame frame : oldFramesList) {
-                if(Objects.equals(frame.getTitle(), winname)) {
-                    repeatingWindow = true;
-
-                    JLabel lbl = labelList.get(i);
-
-                    Image tmpImg = toBufferedImage(_img);
-                    ImageIcon icon = new ImageIcon(tmpImg);
-                    lbl.setIcon(icon);
-
-                    newFramesList.add(frame);
-
-                    break;
-                }
-                i++;
+        }else{
+            ImageWindow tmpWindow = windows.get(winname);
+            if(tmpWindow == null){
+                windows.put(winname, new ImageWindow(winname, img));
+            }else{
+                tmpWindow.setMat(img);
             }
         }
-
-        if(!repeatingWindow) {
-            Image tmpImg = toBufferedImage(_img);
-            displayImage(winname, tmpImg);
-        }
-
+        
     }
 
     public static Image toBufferedImage(Mat m) {
@@ -83,91 +57,91 @@ public class HighGui {
         return image;
     }
 
-    public static void displayImage(String title, Image img)
+    public static JFrame createJFrame(String title)
     {
-        ImageIcon icon=new ImageIcon(img);
-        JFrame frame=new JFrame(title);
-        JLabel lbl=new JLabel(icon);
-        frame.add(lbl);
-        frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        JFrame frame = new JFrame(title);
+
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                closed_windows++;
-                if(closed_windows == newFramesList.size())
+
+                n_closed_windows++;
+                System.out.println(n_closed_windows);
+                if(n_closed_windows == windows.size())
                     latch.countDown();
+
             }
         });
 
-        labelList.add(lbl);
-        newFramesList.add(frame);
+        frame.addKeyListener(new KeyListener() {
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                pressedKey = e.getKeyCode();
+                //System.out.println(pressedKey[0]);
+                latch.countDown();
+            }
+        });
+
+        return frame;
     }
 
     public static int waitKey(int delay) {
 
-        latch = new CountDownLatch(1);
-        closed_windows = 0;
+        // Remove the unused windows
+        for (ImageWindow win : windows.values())
+            if(win.alreadyUsed)
+                windows.remove(win.name);
 
-        if(!repeatingWindow)
-            if (!oldFramesList.isEmpty())
-                closeOldFrames();
+        // (if) Create (else) Update frame
+        for (ImageWindow win : windows.values()) {
 
-        calledWaitKey = true;
+            ImageIcon icon = new ImageIcon(toBufferedImage(win.img));
 
-        final int[] pressedKey = {-1};
-
-        for (JFrame frame : newFramesList) {
-
-            if (delay > 0) {
-                Timer timer = new Timer(delay, new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        latch.countDown();
-                    }
-                });
-                timer.setRepeats(false);
-                timer.start();
+            if (win.lbl == null) {
+                // Create JFrame
+                JFrame frame = createJFrame(win.name);
+                // Create JLabel
+                JLabel lbl = new JLabel(icon);
+                win.lbl = lbl;
+                // Add JLabel to JFrame, Pack and Show
+                frame.add(lbl);
+                frame.pack();
+                frame.setVisible(true);
+            } else {
+                win.lbl.setIcon(icon);
             }
-
-            // só faço addKeyListener se não tiver já
-            frame.addKeyListener(new KeyListener() {
-
-                @Override
-                public void keyTyped(KeyEvent e) {
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    pressedKey[0] = e.getKeyCode();
-                    latch.countDown();
-                }
-            });
-
-            frame.pack();
-            frame.setVisible(true);
         }
 
+        // Reset control values
+        latch = new CountDownLatch(1);
+        n_closed_windows = 0;
+        pressedKey = -1;
+
         try {
-            latch.await();
+            if(delay == 0){
+                latch.await();
+            }else {
+                latch.await(delay, TimeUnit.MILLISECONDS);
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        oldFramesList = (ArrayList<JFrame>) newFramesList.clone();
+        // Set all windows as already used
+        for (ImageWindow win : windows.values())
+            win.alreadyUsed = true;
 
-        return pressedKey[0];
+        return pressedKey;
 
-    }
-
-    private static void closeOldFrames() {
-        for (JFrame frame : oldFramesList) {
-            frame.setVisible(false);
-            frame.dispose();
-        }
-        oldFramesList.clear();
     }
 
 }
