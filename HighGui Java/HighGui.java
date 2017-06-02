@@ -12,19 +12,21 @@ import java.util.concurrent.TimeUnit;
 
 public class HighGui {
 
-    public static int n_closed_windows = 0;
-    public static int pressedKey = -1;
-    
+    // Constants fo namedWindow
+    static int WINDOW_NORMAL = 0; // enables you to resize the window
+    static int WINDOW_AUTOSIZE = 1; // adjusts automatically the window size. It is not resizable!
+
+    // Control Variables
+    static int n_closed_windows = 0;
+    static int pressedKey = -1;
     static CountDownLatch latch = new CountDownLatch(1);
 
+    // Windows Map
     static Map<String,ImageWindow> windows = new HashMap<String,ImageWindow>();
 
-    /*
-       The function namedWindow just makes sure that if you wish to do something
-       with that same window afterwards (eg move, resize, close that window),
-       you can do it by referencing it with the same name.
-     */
-    public static void namedWindow() {
+    public static void namedWindow(String winname, int flag) {
+        ImageWindow newWin = new ImageWindow(winname, flag);
+        windows.put(winname, newWin);
     }
 
     public static void imshow(String winname, Mat img) {
@@ -35,12 +37,13 @@ public class HighGui {
         }else{
             ImageWindow tmpWindow = windows.get(winname);
             if(tmpWindow == null){
-                windows.put(winname, new ImageWindow(winname, img));
+                ImageWindow newWin = new ImageWindow(winname, img);
+                windows.put(winname, newWin);
             }else{
                 tmpWindow.setMat(img);
             }
         }
-        
+
     }
 
     public static Image toBufferedImage(Mat m) {
@@ -57,7 +60,7 @@ public class HighGui {
         return image;
     }
 
-    public static JFrame createJFrame(String title)
+    public static JFrame createJFrame(String title, int flag)
     {
         JFrame frame = new JFrame(title);
 
@@ -86,15 +89,28 @@ public class HighGui {
             @Override
             public void keyPressed(KeyEvent e) {
                 pressedKey = e.getKeyCode();
-                //System.out.println(pressedKey[0]);
                 latch.countDown();
             }
         });
+
+        if(flag == WINDOW_AUTOSIZE)
+            frame.setResizable(false);
 
         return frame;
     }
 
     public static int waitKey(int delay) {
+
+        // Reset control values
+        latch = new CountDownLatch(1);
+        n_closed_windows = 0;
+        pressedKey = -1;
+
+        // If there are no windows to be shown return
+        if(windows.isEmpty()) {
+            System.err.println("Error: waitKey must be used after an imshow");
+            return pressedKey;
+        }
 
         // Remove the unused windows
         for (ImageWindow win : windows.values())
@@ -104,27 +120,23 @@ public class HighGui {
         // (if) Create (else) Update frame
         for (ImageWindow win : windows.values()) {
 
-            ImageIcon icon = new ImageIcon(toBufferedImage(win.img));
+            if(win.img != null) {
 
-            if (win.lbl == null) {
-                // Create JFrame
-                JFrame frame = createJFrame(win.name);
-                // Create JLabel
-                JLabel lbl = new JLabel(icon);
-                win.lbl = lbl;
-                // Add JLabel to JFrame, Pack and Show
-                frame.add(lbl);
-                frame.pack();
-                frame.setVisible(true);
-            } else {
-                win.lbl.setIcon(icon);
+                ImageIcon icon = new ImageIcon(toBufferedImage(win.img));
+
+                if (win.lbl == null) {
+                    JFrame frame = createJFrame(win.name, win.flag);
+                    JLabel lbl = new JLabel(icon);
+                    win.setFrameLabelVisible(frame, lbl);
+                } else {
+                    win.lbl.setIcon(icon);
+                }
+            }else{
+                System.err.println("Error: no imshow associated with" +
+                        " namedWindow: \"" + win.name + "\"");
+                return pressedKey;
             }
         }
-
-        // Reset control values
-        latch = new CountDownLatch(1);
-        n_closed_windows = 0;
-        pressedKey = -1;
 
         try {
             if(delay == 0){
@@ -144,4 +156,22 @@ public class HighGui {
 
     }
 
+    private static void waitKeyError() {
+    }
+
+    public static void destroyWindow(String winname) {
+        ImageWindow tmpWin = windows.get(winname);
+        if(tmpWin != null)
+            windows.remove(winname);
+    }
+
+    public static void destroyAllWindows() {
+        windows.clear();
+    }
+
+    public static void resizeWindow(String winname, int width, int height) {
+        ImageWindow tmpWin = windows.get(winname);
+        if(tmpWin != null)
+            tmpWin.setNewDimension(width, height);
+    }
 }
