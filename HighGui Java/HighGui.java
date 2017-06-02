@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class HighGui {
 
-    // Constants fo namedWindow
+    // Constants for namedWindow
     static int WINDOW_NORMAL = 0; // enables you to resize the window
     static int WINDOW_AUTOSIZE = 1; // adjusts automatically the window size. It is not resizable!
 
@@ -24,9 +24,14 @@ public class HighGui {
     // Windows Map
     static Map<String,ImageWindow> windows = new HashMap<String,ImageWindow>();
 
+    public static void namedWindow(String winname) {
+        namedWindow(winname, HighGui.WINDOW_AUTOSIZE);
+    }
+
     public static void namedWindow(String winname, int flag) {
         ImageWindow newWin = new ImageWindow(winname, flag);
-        windows.put(winname, newWin);
+        if (windows.get(winname) == null)
+            windows.put(winname, newWin);
     }
 
     public static void imshow(String winname, Mat img) {
@@ -109,7 +114,7 @@ public class HighGui {
         // If there are no windows to be shown return
         if(windows.isEmpty()) {
             System.err.println("Error: waitKey must be used after an imshow");
-            return pressedKey;
+            System.exit(-1);
         }
 
         // Remove the unused windows
@@ -134,7 +139,7 @@ public class HighGui {
             }else{
                 System.err.println("Error: no imshow associated with" +
                         " namedWindow: \"" + win.name + "\"");
-                return pressedKey;
+                System.exit(-1);
             }
         }
 
@@ -156,9 +161,6 @@ public class HighGui {
 
     }
 
-    private static void waitKeyError() {
-    }
-
     public static void destroyWindow(String winname) {
         ImageWindow tmpWin = windows.get(winname);
         if(tmpWin != null)
@@ -173,5 +175,11 @@ public class HighGui {
         ImageWindow tmpWin = windows.get(winname);
         if(tmpWin != null)
             tmpWin.setNewDimension(width, height);
+    }
+
+    public static void moveWindow(String winname, int x, int y) {
+        ImageWindow tmpWin = windows.get(winname);
+        if(tmpWin != null)
+            tmpWin.setNewPosition(x, y);
     }
 }

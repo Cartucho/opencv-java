@@ -10,11 +10,14 @@ public class ImageWindow {
     String name;
     Mat img = null;
     Boolean alreadyUsed = false;
+    Boolean imgToBeResized = false;
+    Boolean windowToBeResized = false;
+    Boolean positionToBeChanged = false;
     JFrame frame = null;
     JLabel lbl = null;
     int flag;
-    int x;
-    int y;
+    int x = -1;
+    int y = -1;
     int width = -1;
     int height = -1;
 
@@ -34,16 +37,26 @@ public class ImageWindow {
         this.img = img;
         this.alreadyUsed = false;
 
-        if(width != -1 && height != -1)
+        if(imgToBeResized) {
             resizeImage();
+            imgToBeResized = false;
+        }
+
     }
 
     public void setFrameLabelVisible(JFrame frame, JLabel lbl) {
         this.frame = frame;
         this.lbl = lbl;
 
-        if(width != -1 && height != -1)
+        if(windowToBeResized) {
             lbl.setPreferredSize(new Dimension(width, height));
+            windowToBeResized = false;
+        }
+
+        if(positionToBeChanged) {
+            frame.setLocation(x, y);
+            positionToBeChanged = false;
+        }
 
         frame.add(lbl);
         frame.pack();
@@ -51,11 +64,36 @@ public class ImageWindow {
     }
 
     public void setNewDimension(int width, int height) {
-        this.width = width;
-        this.height = height;
 
-        if(img != null)
-            resizeImage();
+        if(this.width != width || this.height != height){
+            this.width = width;
+            this.height = height;
+
+            if(img != null) {
+                resizeImage();
+            }else{
+                imgToBeResized = true;
+            }
+
+            if(lbl != null){
+                lbl.setPreferredSize(new Dimension(width, height));
+            }else{
+                windowToBeResized = true;
+            }
+        }
+    }
+
+    public void setNewPosition(int x, int y) {
+        if(this.x != x || this.y != y){
+            this.x = x;
+            this.y = y;
+
+            if(frame != null){
+                frame.setLocation(x, y);
+            }else{
+                positionToBeChanged = true;
+            }
+        }
     }
 
     private void resizeImage() {
