@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -15,14 +16,15 @@ public class HighGui {
     // Constants for namedWindow
     static int WINDOW_NORMAL = 0; // enables you to resize the window
     static int WINDOW_AUTOSIZE = 1; // adjusts automatically the window size. It is not resizable!
-
     // Control Variables
     static int n_closed_windows = 0;
     static int pressedKey = -1;
     static CountDownLatch latch = new CountDownLatch(1);
 
     // Windows Map
-    static Map<String,ImageWindow> windows = new HashMap<String,ImageWindow>();
+    static Map < String,
+            ImageWindow > windows = new HashMap < String,
+            ImageWindow > ();
 
     public static void namedWindow(String winname) {
         namedWindow(winname, HighGui.WINDOW_AUTOSIZE);
@@ -30,21 +32,20 @@ public class HighGui {
 
     public static void namedWindow(String winname, int flag) {
         ImageWindow newWin = new ImageWindow(winname, flag);
-        if (windows.get(winname) == null)
-            windows.put(winname, newWin);
+        if (windows.get(winname) == null) windows.put(winname, newWin);
     }
 
     public static void imshow(String winname, Mat img) {
 
-        if (img.empty()){
+        if (img.empty()) {
             System.err.println("Error: Empty image in imshow");
-            System.exit(-1);
-        }else{
+            System.exit( - 1);
+        } else {
             ImageWindow tmpWindow = windows.get(winname);
-            if(tmpWindow == null){
+            if (tmpWindow == null) {
                 ImageWindow newWin = new ImageWindow(winname, img);
                 windows.put(winname, newWin);
-            }else{
+            } else {
                 tmpWindow.setMat(img);
             }
         }
@@ -53,43 +54,38 @@ public class HighGui {
 
     public static Image toBufferedImage(Mat m) {
         int type = BufferedImage.TYPE_BYTE_GRAY;
-        if ( m.channels() > 1 ) {
+        if (m.channels() > 1) {
             type = BufferedImage.TYPE_3BYTE_BGR;
         }
-        int bufferSize = m.channels()*m.cols()*m.rows();
-        byte [] b = new byte[bufferSize];
-        m.get(0,0,b); // get all the pixels
-        BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
+        int bufferSize = m.channels() * m.cols() * m.rows();
+        byte[] b = new byte[bufferSize];
+        m.get(0, 0, b); // get all the pixels
+        BufferedImage image = new BufferedImage(m.cols(), m.rows(), type);
         final byte[] targetPixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         System.arraycopy(b, 0, targetPixels, 0, b.length);
         return image;
     }
 
-    public static JFrame createJFrame(String title, int flag)
-    {
+    public static JFrame createJFrame(String title, int flag) {
         JFrame frame = new JFrame(title);
 
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {@Override
+        public void windowClosing(java.awt.event.WindowEvent windowEvent) {
 
-                n_closed_windows++;
-                System.out.println(n_closed_windows);
-                if(n_closed_windows == windows.size())
-                    latch.countDown();
+            n_closed_windows++;
+            System.out.println(n_closed_windows);
+            if (n_closed_windows == windows.size()) latch.countDown();
 
-            }
+        }
         });
 
         frame.addKeyListener(new KeyListener() {
 
             @Override
-            public void keyTyped(KeyEvent e) {
-            }
+            public void keyTyped(KeyEvent e) {}
 
             @Override
-            public void keyReleased(KeyEvent e) {
-            }
+            public void keyReleased(KeyEvent e) {}
 
             @Override
             public void keyPressed(KeyEvent e) {
@@ -98,8 +94,7 @@ public class HighGui {
             }
         });
 
-        if(flag == WINDOW_AUTOSIZE)
-            frame.setResizable(false);
+        if (flag == WINDOW_AUTOSIZE) frame.setResizable(false);
 
         return frame;
     }
@@ -112,20 +107,28 @@ public class HighGui {
         pressedKey = -1;
 
         // If there are no windows to be shown return
-        if(windows.isEmpty()) {
+        if (windows.isEmpty()) {
             System.err.println("Error: waitKey must be used after an imshow");
-            System.exit(-1);
+            System.exit( - 1);
         }
 
         // Remove the unused windows
-        for (ImageWindow win : windows.values())
-            if(win.alreadyUsed)
-                windows.remove(win.name);
+        Iterator < Map.Entry < String,
+                ImageWindow >> iter = windows.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry < String,
+                    ImageWindow > entry = iter.next();
+            ImageWindow win = entry.getValue();
+            if (win.alreadyUsed) {
+                iter.remove();
+                win.frame.dispose();
+            }
+        }
 
         // (if) Create (else) Update frame
-        for (ImageWindow win : windows.values()) {
+        for (ImageWindow win: windows.values()) {
 
-            if(win.img != null) {
+            if (win.img != null) {
 
                 ImageIcon icon = new ImageIcon(toBufferedImage(win.img));
 
@@ -136,25 +139,24 @@ public class HighGui {
                 } else {
                     win.lbl.setIcon(icon);
                 }
-            }else{
-                System.err.println("Error: no imshow associated with" +
-                        " namedWindow: \"" + win.name + "\"");
-                System.exit(-1);
+            } else {
+                System.err.println("Error: no imshow associated with" + " namedWindow: \"" + win.name + "\"");
+                System.exit( - 1);
             }
         }
 
         try {
-            if(delay == 0){
+            if (delay == 0) {
                 latch.await();
-            }else {
+            } else {
                 latch.await(delay, TimeUnit.MILLISECONDS);
             }
-        } catch (InterruptedException e) {
+        } catch(InterruptedException e) {
             e.printStackTrace();
         }
 
         // Set all windows as already used
-        for (ImageWindow win : windows.values())
+        for (ImageWindow win: windows.values())
             win.alreadyUsed = true;
 
         return pressedKey;
@@ -163,8 +165,7 @@ public class HighGui {
 
     public static void destroyWindow(String winname) {
         ImageWindow tmpWin = windows.get(winname);
-        if(tmpWin != null)
-            windows.remove(winname);
+        if (tmpWin != null) windows.remove(winname);
     }
 
     public static void destroyAllWindows() {
@@ -173,13 +174,11 @@ public class HighGui {
 
     public static void resizeWindow(String winname, int width, int height) {
         ImageWindow tmpWin = windows.get(winname);
-        if(tmpWin != null)
-            tmpWin.setNewDimension(width, height);
+        if (tmpWin != null) tmpWin.setNewDimension(width, height);
     }
 
     public static void moveWindow(String winname, int x, int y) {
         ImageWindow tmpWin = windows.get(winname);
-        if(tmpWin != null)
-            tmpWin.setNewPosition(x, y);
+        if (tmpWin != null) tmpWin.setNewPosition(x, y);
     }
 }

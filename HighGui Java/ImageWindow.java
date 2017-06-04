@@ -37,7 +37,7 @@ public class ImageWindow {
         this.img = img;
         this.alreadyUsed = false;
 
-        if(imgToBeResized) {
+        if (imgToBeResized) {
             resizeImage();
             imgToBeResized = false;
         }
@@ -48,12 +48,12 @@ public class ImageWindow {
         this.frame = frame;
         this.lbl = lbl;
 
-        if(windowToBeResized) {
+        if (windowToBeResized) {
             lbl.setPreferredSize(new Dimension(width, height));
             windowToBeResized = false;
         }
 
-        if(positionToBeChanged) {
+        if (positionToBeChanged) {
             frame.setLocation(x, y);
             positionToBeChanged = false;
         }
@@ -65,48 +65,45 @@ public class ImageWindow {
 
     public void setNewDimension(int width, int height) {
 
-        if(this.width != width || this.height != height){
+        if (this.width != width || this.height != height) {
             this.width = width;
             this.height = height;
 
-            if(img != null) {
+            if (img != null) {
                 resizeImage();
-            }else{
+            } else {
                 imgToBeResized = true;
             }
 
-            if(lbl != null){
+            if (lbl != null) {
                 lbl.setPreferredSize(new Dimension(width, height));
-            }else{
+            } else {
                 windowToBeResized = true;
             }
         }
     }
 
     public void setNewPosition(int x, int y) {
-        if(this.x != x || this.y != y){
+        if (this.x != x || this.y != y) {
             this.x = x;
             this.y = y;
 
-            if(frame != null){
+            if (frame != null) {
                 frame.setLocation(x, y);
-            }else{
+            } else {
                 positionToBeChanged = true;
             }
         }
     }
 
     private void resizeImage() {
-        if(flag == HighGui.WINDOW_NORMAL){
+        if (flag == HighGui.WINDOW_NORMAL) {
             Size tmpSize = keepAspectRatioSize(img.width(), img.height(), width, height);
             Imgproc.resize(img, img, tmpSize);
         }
     }
 
-    public static Size keepAspectRatioSize(int original_width,
-                                           int original_height,
-                                           int bound_width,
-                                           int bound_height) {
+    public static Size keepAspectRatioSize(int original_width, int original_height, int bound_width, int bound_height) {
 
         int new_width = original_width;
         int new_height = original_height;

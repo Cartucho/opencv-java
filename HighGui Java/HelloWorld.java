@@ -6,13 +6,15 @@ class MatchTemplateDemoRun{
 
     public void run(String[] args) {
 
-        empty_image_test(); // Throws error of empty image
+        //empty_image_test(); // Throws error of empty image
 
         //dont_show_without_creating_windows_test(); // no imshow, throw waitkey error
 
         //dont_show_without_waitKey_test(args); // no waitkey => no waiting and displaying
 
         //close_window_by_pressing_key_test(args); // press ANYKEY to close the window
+
+        //show_10_images_test(args);
 
         //show_image_in_two_windows_with_different_titles_test(args); // creates two windows with different names with the same pic
 
@@ -39,6 +41,40 @@ class MatchTemplateDemoRun{
         //move_window_test(args); // move window to the right after keyPressed
 
         //show_two_images_in_different_positions_test(args);
+
+        //mouse_call_back_test(args);
+
+        System.out.println("Done!");
+        System.exit(0);
+    }
+
+    /*
+    private void mouse_call_back_test(String[] args) {
+        Mat img = Imgcodecs.imread( args[0], Imgcodecs.IMREAD_COLOR );
+
+        HighGui.namedWindow("Window 1", HighGui.WINDOW_NORMAL);
+
+        //set the callback function for any mouse event
+        HighGui.setMouseCallback("ImageDisplay", CallBackFunc, null);
+        //http://opencvexamples.blogspot.com/2014/01/detect-mouse-clicks-and-moves-on-image.html
+        //http://docs.opencv.org/2.4/modules/highgui/doc/user_interface.html
+
+        HighGui.imshow("Window 1", img);
+        HighGui.waitKey(0);
+    }*/
+
+    private void show_10_images_test(String[] args) {
+
+        // load and display one image after the other has been closed: repeat 10x
+        for (int i = 0; i < 10; i++)
+        {
+            System.out.println(i);
+            Mat img = Imgcodecs.imread(args[0], Imgcodecs.IMREAD_COLOR);
+            String winName = "Window #";
+            winName += i;
+            HighGui.imshow(winName, img);
+            HighGui.waitKey(0);
+        }
 
         System.out.println("Done!");
         System.exit(0);
