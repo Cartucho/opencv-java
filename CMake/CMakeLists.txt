@@ -15,6 +15,13 @@ set(opencv_tutorial_java_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/.build")
 # make sure the build directory exists
 file(MAKE_DIRECTORY "${opencv_tutorial_java_bin_dir}")
 
+#file(GLOB_RECURSE java_tutorials RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} tutorial_code/*.java)
+
+#foreach(tutorial_filename ${java_tutorials})
+#  get_filename_component(tutorial ${tutorial_filename} NAME_WE)
+#  message(${tutorial_filename})
+#endforeach()
+
 # Copy the OpenCV jar after it has been generated.
 add_custom_command(OUTPUT "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${JAR_FILE}" "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
@@ -22,9 +29,8 @@ add_custom_command(OUTPUT "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
                    COMMENT "Copying the OpenCV jar"
 )
 
-file(GLOB_RECURSE java_tutorials RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} tutorial_code/*.java)
-
-foreach(tutorial_filename ${java_tutorials})
-  get_filename_component(tutorial ${tutorial_filename} NAME_WE)
-  message(${tutorial_filename})
-endforeach()
+add_custom_target(${PROJECT_NAME}_properties
+                  COMMAND "${CMAKE_COMMAND}" -E echo "opencv.lib.path = $<TARGET_FILE_DIR:${the_module}>"
+                    > "${opencv_tutorial_java_bin_dir}/ant-$<CONFIGURATION>.properties"
+                  VERBATIM
+)

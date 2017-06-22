@@ -1,1 +1,2 @@
 cmake -D BUILD_EXAMPLES=ON -D BUILD_JAVA_EXAMPLES=ON ..
+make -j8 opencv_test_java
