@@ -1,47 +1,30 @@
-if(NOT ANT_EXECUTABLE)
+# ----------------------------------------------------------------------------
+#  CMake file for Java tutorials.
+#
+# ----------------------------------------------------------------------------
+
+if(NOT ANT_EXECUTABLE
+  OR NOT BUILD_JAVA_EXAMPLES)
   return()
 endif()
 
-message("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeyyyyyyyyyyy")
+project(java_tutorials)
 
-if(BUILD_EXAMPLES)
+set(opencv_tutorial_java_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/.build")
 
-  project(java_samples)
+# make sure the build directory exists
+file(MAKE_DIRECTORY "${opencv_tutorial_java_bin_dir}")
 
-  # ---------------------------------------------
-  #      Define executable targets
-  # ---------------------------------------------
-  MACRO(OPENCV_DEFINE_JAVA_EXAMPLE name srcs)
+# Copy the OpenCV jar after it has been generated.
+add_custom_command(OUTPUT "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${JAR_FILE}" "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
+                   DEPENDS "${JAR_FILE}"
+                   COMMENT "Copying the OpenCV jar"
+)
 
-      message("yi2")
-      if("${srcs}" MATCHES "tutorial_code")
-        set(sample_kind tutorial)
-        set(sample_KIND TUTORIAL)
-        set(sample_subfolder "tutorials")
-        message("here")
-      endif()
-      message("ended----------")
+file(GLOB_RECURSE java_tutorials RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} tutorial_code/*.java)
 
-  ENDMACRO()
-
-  file(GLOB_RECURSE java_samples RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.java)
-
-  foreach(sample_filename ${java_samples})
-      message(${sample_filename})
-      get_filename_component(sample ${sample_filename} NAME_WE)
-      OPENCV_DEFINE_JAVA_EXAMPLE(${sample}  ${sample_filename})
-  endforeach()
-
-  # Copy the OpenCV jar after it has been generated.
-  add_custom_command(OUTPUT "${opencv_test_java_bin_dir}/bin/${JAR_NAME}"
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${JAR_FILE}" "${opencv_test_java_bin_dir}/bin/${JAR_NAME}"
-                     DEPENDS "${JAR_FILE}"
-                     COMMENT "Copying the OpenCV jar"
-                    )
-
-  add_custom_command(OUTPUT "${opencv_test_java_bin_dir}/build.xml"
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/build.xml" "${opencv_test_java_bin_dir}/build.xml"
-                     DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/build.xml"
-                     COMMENT "Copying build.xml"
-                    )
-endif()
+foreach(tutorial_filename ${java_tutorials})
+  get_filename_component(tutorial ${tutorial_filename} NAME_WE)
+  message(${tutorial_filename})
+endforeach()
