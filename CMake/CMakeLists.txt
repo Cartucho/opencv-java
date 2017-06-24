@@ -1,36 +1,45 @@
 # ----------------------------------------------------------------------------
-#  CMake file for Java tutorials.
+#  CMake file for Java tutorials compilation.
 #
 # ----------------------------------------------------------------------------
-
-if(NOT ANT_EXECUTABLE
-  OR NOT BUILD_JAVA_EXAMPLES)
+if(NOT ANT_EXECUTABLE)
   return()
 endif()
 
-project(java_tutorials)
+project(compile_java_tutorials)
 
-set(opencv_tutorial_java_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/.build")
+MACRO(SUBSUBDIRLIST result curdir)
+  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*/*)
+  SET(dirlist "")
+  FOREACH(child ${children})
+    IF(IS_DIRECTORY ${curdir}/${child})
+      FILE(GLOB jars "${child}/*.java")
+      if(jars)
+        # There are .java files in directory referred by 'child'
+        LIST(APPEND dirlist ${child})
+      endif()
+    ENDIF()
+  ENDFOREACH()
+  SET(${result} ${dirlist})
+ENDMACRO()
 
-# make sure the build directory exists
-file(MAKE_DIRECTORY "${opencv_tutorial_java_bin_dir}")
+SUBSUBDIRLIST(TUTORIALS ${CMAKE_CURRENT_SOURCE_DIR})
 
-#file(GLOB_RECURSE java_tutorials RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} tutorial_code/*.java)
+set(opencv_tutorial_java_bin_dir "${CMAKE_CURRENT_BINARY_DIR}/.compiled")
+set(target_name "compile_java_tutorials")
 
-#foreach(tutorial_filename ${java_tutorials})
-#  get_filename_component(tutorial ${tutorial_filename} NAME_WE)
-#  message(${tutorial_filename})
-#endforeach()
+add_custom_target("${target_name}" ALL 
+                  DEPENDS opencv_java
+                 )
 
-# Copy the OpenCV jar after it has been generated.
-add_custom_command(OUTPUT "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different "${JAR_FILE}" "${opencv_tutorial_java_bin_dir}/bin/${JAR_NAME}"
-                   DEPENDS "${JAR_FILE}"
-                   COMMENT "Copying the OpenCV jar"
-)
-
-add_custom_target(${PROJECT_NAME}_properties
-                  COMMAND "${CMAKE_COMMAND}" -E echo "opencv.lib.path = $<TARGET_FILE_DIR:${the_module}>"
-                    > "${opencv_tutorial_java_bin_dir}/ant-$<CONFIGURATION>.properties"
-                  VERBATIM
-)
+FOREACH(tutorial_dir ${TUTORIALS})
+  get_filename_component(tutorial_name ${tutorial_dir} NAME_WE)
+  add_custom_command(TARGET "${target_name}" 
+                     COMMAND ${ANT_EXECUTABLE}
+                          -DocvJarDir="${OpenCV_BINARY_DIR}/bin"
+                          -DsrcDir="${tutorial_dir}"
+                          -DdstDir="${opencv_tutorial_java_bin_dir}/${tutorial_name}"
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                     COMMENT "Compile the tutorial: ${tutorial_name}"
+                    )
+ENDFOREACH()
