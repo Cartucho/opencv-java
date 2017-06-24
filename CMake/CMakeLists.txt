@@ -34,7 +34,7 @@ FOREACH(tutorial_dir ${TUTORIALS_DIRS})
                           -DocvJarDir="${OpenCV_BINARY_DIR}/bin"
                           -DsrcDir="${tutorial_dir}"
                           -DdstDir="${opencv_tutorial_java_bin_dir}/${tutorial_name}"
-                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                     WORKING_DIRECTORY "${curdir}"
                      COMMENT "Compile the tutorial: ${tutorial_name}"
                     )
 ENDFOREACH()
