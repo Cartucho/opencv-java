@@ -30,7 +30,7 @@ add_custom_target("${target_name}" ALL
 FOREACH(tutorial_dir ${TUTORIALS_DIRS})
   get_filename_component(tutorial_name ${tutorial_dir} NAME_WE)
   add_custom_command(TARGET "${target_name}" 
-                     COMMAND ${ANT_EXECUTABLE}
+                     COMMAND ${ANT_EXECUTABLE} -q
                           -DocvJarDir="${OpenCV_BINARY_DIR}/bin"
                           -DsrcDir="${tutorial_dir}"
                           -DdstDir="${opencv_tutorial_java_bin_dir}/${tutorial_name}"
