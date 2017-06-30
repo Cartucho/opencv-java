@@ -1,0 +1,3 @@
+add FIndPylint.cmake to opencv/cmake
+
+add_subdirectory(python/tutorial_code) (no opencv/samples)
