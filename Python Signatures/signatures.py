@@ -4,13 +4,14 @@ import re
 import sys
 import imp
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
+# TODO : Use rootdir, Make code pretty again
 
 def load_html_file(dir):
     f = codecs.open(dir, 'r')
     html = f.read()
-    soup = BeautifulSoup(html)
+    soup = BeautifulSoup(html, 'html.parser')
 
     return soup
 
@@ -79,15 +80,51 @@ for link in href_list:
                 for function in soup.findAll("h2", {"class": "memtitle"}):
                     # get function_name from html element
                     function_name = function.getText()
-                    function_name = function_name.rsplit(';', 1)[1]
 
                     if "()" not in function_name:
                         continue
                     else:
-                        function_name = function_name.replace(' ', '')[:-2] # remove the () from function name
+                        function_name = function_name.replace(' ', '')[2:-2]
                         print function_name
-                        output_help_to_file(r'test.txt', str("cv2." + function_name + ""))
-                        signature = get_signature_to_string('test.txt', function_name)
+
+                        output_help_to_file(r'tmp_file.txt', str("cv2." + function_name + ""))
+                        signature = get_signature_to_string('tmp_file.txt', function_name)
 
                         if signature != "":
                             print signature
+                            cpp_table = function.findNext('table')
+
+                            new_table = soup.new_tag('table')
+                            new_row = soup.new_tag('tr')
+
+                            ## Add elements
+                            new_item = soup.new_tag('th')
+                            new_item.append('Python:')
+                            new_row.append(new_item)
+
+                            if "->" in signature:
+                                new_item = soup.new_tag('td')
+                                new_item.append('dst =') # what's after ->
+                                new_row.append(new_item)
+
+                            new_item = soup.new_tag('td')
+                            new_item.append('cv2.'+function_name+'(')
+                            new_row.append(new_item)
+
+                            new_item = soup.new_tag('td', ** {'class': 'paramname'})
+                            new_item.append('src, d, sigmaColor, sigmaSpace[, dst[, borderType]]') # what's inside
+                            new_row.append(new_item)
+
+                            new_item = soup.new_tag('td')
+                            new_item.append(')')
+                            new_row.append(new_item)
+
+                            new_table.append(new_row)
+
+                            # insert the new table after the current table
+                            cpp_table.insert_after(new_table)
+
+                        #print quote2.text
+
+with open("output1.html", "w") as file:
+    file.write(str(soup))
