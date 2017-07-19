@@ -6,6 +6,7 @@ import imp
 
 from bs4 import BeautifulSoup
 
+
 # TODO: clarify when there are several C++ signatures and only one Python one for the same function.
 # i.e. calcHist() - http://docs.opencv.org/trunk/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d
 
@@ -36,7 +37,7 @@ def get_links_list(soup):
     return href_list
 
 
-def output_help_to_file(file_path, request):
+def save_output_of_help_to_file(file_path, request):
     with open(file_path, "w") as f:
         sys.stdout = f
         pydoc.help(request)
@@ -72,6 +73,20 @@ def add_signature_to_table(new_row, signature):
     new_row = add_item(new_row, "black", ')')
     return new_row
 
+
+def new_line(python_table, new_row):
+    python_table.append(new_row)
+    new_row = soup.new_tag('tr')
+    return new_row
+
+
+def add_bolded(new_row, text):
+    new_item = soup.new_tag('th')
+    new_item.append(text)
+    new_row.append(new_item)
+    return new_row
+
+
 try:
     imp.find_module('cv2')
 except ImportError:
@@ -94,7 +109,6 @@ for link in href_list:
         # get the right link to a sub-module html file
         link = re.sub(r"group__.+html", "", link)
         for sub_link in sub_href_list:
-            #if "group__imgproc__hist" in sub_link:
             tmp_dir = root_dir + link + sub_link
             soup = load_html_file(tmp_dir)
             print root_dir + link + sub_link
@@ -114,34 +128,25 @@ for link in href_list:
                     else:
                         function_name = function_name.replace(' ', '')[2:-2]
 
-                    output_help_to_file(r'tmp_file.txt', str("cv2." + function_name + ""))
+                    save_output_of_help_to_file(r'tmp_file.txt', str("cv2." + function_name + ""))
                     signature = get_signature_to_string('tmp_file.txt', function_name)
 
                     if signature != "":
                         print signature
 
                         cpp_table = function.findNext('table')
-
                         python_table = soup.new_tag('table')
                         new_row = soup.new_tag('tr')
-
-                        ## Add elements
-                        new_item = soup.new_tag('th')
-                        new_item.append('Python:')
-                        new_row.append(new_item)
+                        new_row = add_bolded(new_row, 'Python:')
 
                         if len(signature) > 120:
-                            python_table.append(new_row)
-                            new_row = soup.new_tag('tr')
+                            new_row = new_line(python_table, new_row)
 
                         if " or " in signature:
                             for tmp_sig in signature.split(" or "):
-                                print tmp_sig
-                                python_table.append(new_row)
-                                new_row = soup.new_tag('tr')
+                                new_row = new_line(python_table, new_row)
                                 new_row = add_signature_to_table(new_row, tmp_sig)
-                                python_table.append(new_row)
-                                new_row = soup.new_tag('tr')
+                                new_row = new_line(python_table, new_row)
                         else:
                             new_row = add_signature_to_table(new_row, signature)
                             python_table.append(new_row)
