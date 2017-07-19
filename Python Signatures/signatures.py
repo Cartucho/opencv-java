@@ -105,13 +105,13 @@ for link in href_list:
         # get the sub-modules
         soup = load_html_file(root_dir + link)
         sub_href_list = get_links_list(soup)
-
-        # get the right link to a sub-module html file
         link = re.sub(r"group__.+html", "", link)
+
         for sub_link in sub_href_list:
             tmp_dir = root_dir + link + sub_link
             soup = load_html_file(tmp_dir)
             print root_dir + link + sub_link
+
             for function in soup.findAll("h2", {"class": "memtitle"}):
 
                 # get function_name from html element
