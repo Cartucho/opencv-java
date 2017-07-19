@@ -9,11 +9,11 @@ from bs4 import BeautifulSoup
 # TODO: clarify when there are several C++ signatures and only one Python one for the same function.
 # i.e. calcHist() - http://docs.opencv.org/trunk/d6/dc7/group__imgproc__hist.html#ga4b2b5fd75503ff9e6844cc4dcdaed35d
 
+
 def load_html_file(dir):
     f = codecs.open(dir, 'r')
     html = f.read()
     soup = BeautifulSoup(html, 'html.parser')
-
     return soup
 
 
@@ -24,7 +24,6 @@ def is_module_link(link):
         return False
     if "#" in link:
         return False
-
     return True
 
 
@@ -34,7 +33,6 @@ def get_links_list(soup):
         tmp_href = link.get('href')
         if is_module_link(tmp_href):
             href_list.append(tmp_href)
-
     return href_list
 
 
@@ -44,7 +42,6 @@ def output_help_to_file(file_path, request):
         pydoc.help(request)
         f.close()
         sys.stdout = sys.__stdout__
-
     pass
 
 
@@ -53,9 +50,27 @@ def get_signature_to_string(file_path, function_name):
         for i, line in enumerate(fin):
             if function_name + "(" and "," in line:
                 return line.rstrip()
-
     return ""
 
+
+def add_item(new_row, color, text):
+    new_item = soup.new_tag('td')
+    if color == "red":
+        new_item = soup.new_tag('td', **{'class': 'paramname'})
+    new_item.append(text)
+    new_row.append(new_item)
+    return new_row
+
+
+def add_signature_to_table(new_row, signature):
+    if "->" in signature:
+        new_item = soup.new_tag('td')
+        new_item.append(signature.split("->", 1)[1] + ' =')
+        new_row.append(new_item)
+    new_row = add_item(new_row, "black", 'cv2.' + function_name + '(')
+    new_row = add_item(new_row, "red", signature.partition('(')[-1].rpartition(')')[0])
+    new_row = add_item(new_row, "black", ')')
+    return new_row
 
 try:
     imp.find_module('cv2')
@@ -68,27 +83,6 @@ root_dir = sys.argv[1]
 # use index.html to get modules
 soup = load_html_file(root_dir + "index.html")
 href_list = get_links_list(soup)
-
-
-def add_signature_to_table(new_row, signature):
-    if "->" in signature:
-        new_item = soup.new_tag('td')
-        new_item.append(signature.split("->", 1)[1] + ' =')
-        new_row.append(new_item)
-
-    new_item = soup.new_tag('td')
-    new_item.append('cv2.' + function_name + '(')
-    new_row.append(new_item)
-
-    new_item = soup.new_tag('td', **{'class': 'paramname'})
-    new_item.append(signature.partition('(')[-1].rpartition(')')[0])
-    new_row.append(new_item)
-
-    new_item = soup.new_tag('td')
-    new_item.append(')')
-    new_row.append(new_item)
-    pass
-
 
 for link in href_list:
     if "group__core" in link:
@@ -145,11 +139,11 @@ for link in href_list:
                                 print tmp_sig
                                 python_table.append(new_row)
                                 new_row = soup.new_tag('tr')
-                                add_signature_to_table(new_row, tmp_sig)
+                                new_row = add_signature_to_table(new_row, tmp_sig)
                                 python_table.append(new_row)
                                 new_row = soup.new_tag('tr')
                         else:
-                            add_signature_to_table(new_row, signature)
+                            new_row = add_signature_to_table(new_row, signature)
                             python_table.append(new_row)
 
                         # insert the new table after the current table
