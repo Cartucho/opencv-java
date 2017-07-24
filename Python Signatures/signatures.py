@@ -44,7 +44,9 @@ def add_item(new_row, color, text):
 
 
 def add_signature_to_table(new_row, signature, function_name):
-    if "->" in signature:
+    if "-> None" in signature:
+        pass
+    elif "->" in signature:
         new_item = soup.new_tag('td')
         new_item.append(signature.split("->", 1)[1] + ' =')
         new_row.append(new_item)
@@ -68,7 +70,9 @@ def add_bolded(new_row, text):
 
 
 def add_python_signatures(soup, tmp_dir):
-    #print tmp_dir
+    print tmp_dir
+    sign_counter = 0
+    added_sign_counter = 0
     for function in soup.findAll("h2", {"class": "memtitle"}):
         function_name = function.getText()
 
@@ -83,9 +87,11 @@ def add_python_signatures(soup, tmp_dir):
             else:
                 function_name = function_name.replace(' ', '')[2:-2]
 
+            sign_counter+=1
             try:
                 method = getattr(cv2, str(function_name))
-            except:
+                added_sign_counter+=1
+            except AttributeError:
                 continue
 
             signature = str(method.__doc__)
@@ -112,22 +118,24 @@ def add_python_signatures(soup, tmp_dir):
     with open(tmp_dir, "w") as file:
         file.write(str(soup))
         file.close()
+    print "Added ["+str(added_sign_counter)+\
+          "/"+str(sign_counter)+"] Python signatures"
     pass
 
 
-root_dir = sys.argv[1]
-soup = load_html_file(root_dir + "index.html")
+ROOT_DIR = sys.argv[1]
+soup = load_html_file(ROOT_DIR + "index.html")
 href_list = get_links_list(soup)
 
 for link in href_list:
     # add python singatures to the module
-    soup = load_html_file(root_dir + link)
+    soup = load_html_file(ROOT_DIR + link)
     sub_href_list = get_links_list(soup)
-    add_python_signatures(soup, root_dir + link)
+    add_python_signatures(soup, ROOT_DIR + link)
 
     # add python sigantures to the sub-modules
     link = re.sub(r"group__.+html", "", link)
     for sub_link in sub_href_list:
-        tmp_dir = root_dir + link + sub_link
+        tmp_dir = ROOT_DIR + link + sub_link
         soup = load_html_file(tmp_dir)
         add_python_signatures(soup, tmp_dir)
